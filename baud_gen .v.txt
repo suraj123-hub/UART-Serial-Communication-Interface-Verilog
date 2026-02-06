@@ -1,0 +1,31 @@
+module baud_gen (
+    input  wire clk,
+    input  wire reset,
+    output reg  baud_tick
+);
+
+    parameter CLK_FREQ  = 100_000_000; // 100 MHz
+    parameter BAUD_RATE = 9600;
+    parameter OVERSAMPLE = 16;
+
+    localparam integer DIVISOR =
+        CLK_FREQ / (BAUD_RATE * OVERSAMPLE);
+
+    reg [$clog2(DIVISOR)-1:0] count;
+
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            count     <= 0;
+            baud_tick <= 0;
+        end else begin
+            if (count == DIVISOR-1) begin
+                count     <= 0;
+                baud_tick <= 1;
+            end else begin
+                count     <= count + 1;
+                baud_tick <= 0;
+            end
+        end
+    end
+
+endmodule
